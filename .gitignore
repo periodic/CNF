@@ -9,4 +9,3 @@ src/.webpack.js
 *.o
 Main
 elm-stuff/
-/elm/cnf.js
