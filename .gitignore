@@ -8,3 +8,4 @@ src/.webpack.js
 *.hi
 *.o
 Main
+elm-stuff/
