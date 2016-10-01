@@ -30,7 +30,7 @@ renderHeader : Int -> Html Msg
 renderHeader exprSize =
     div [ class "header" ]
         [ div [ class "exprSizeInput" ]
-            [ label [ for "exprSize"] [ text "Expression Size" ]
+            [ label [ for "exprSize"] [ text "Expression Size: " ]
             , input [ type' "input", value <| toString exprSize, onInput parseSize ] []
             ]
         , div [ class "newExprButton" ]
@@ -49,39 +49,43 @@ renderWExpr : Maybe Cnf.Expr -> Html Msg
 renderWExpr maybeExpr =
     div [ class "wExpr" ]
         [ text "Expression:"
-        , renderExpr maybeExpr
+        , renderExpr maybeExpr (text "Loading...")
         ]
 
 renderIExpr : Maybe Cnf.Expr -> Html Msg
 renderIExpr maybeExpr =
     div [ class "iExpr" ]
         [ text "Remove implications:"
-        , input [ type' "button", value "Check", onClick ShowImplicationStep ] []
-        , renderExpr maybeExpr
+        , renderExpr maybeExpr (showButton ShowImplicationStep)
         ]
 
 renderNExpr : Maybe Cnf.Expr -> Html Msg
 renderNExpr maybeExpr =
     div [ class "nExpr" ]
         [ text "Move negations:"
-        , input [ type' "button", value "Check", onClick ShowNegationStep ] []
-        , renderExpr maybeExpr
+        , renderExpr maybeExpr (showButton ShowNegationStep)
         ]
 
 renderDExpr : Maybe Cnf.Expr -> Html Msg
 renderDExpr maybeExpr =
     div [ class "dExpr" ]
         [ text "Distribute disjunctions:"
-        , input [ type' "button", value "Check", onClick ShowDisjunctionStep ] []
-        , renderExpr maybeExpr
+        , renderExpr maybeExpr (showButton ShowDisjunctionStep)
         ]
 
-renderExpr :  Maybe Cnf.Expr -> Html Msg
-renderExpr expr =
-    case expr of
-        Nothing ->
-            div [ class "expr-empty" ] []
-        Just expr ->
-            div [ class "expr" ]
-                [ text <| Cnf.prettyPrint expr ]
+showButton : Msg -> Html Msg
+showButton msg =
+    input [ type' "button", value "Reveal", onClick msg ] []
+
+renderExpr : Maybe Cnf.Expr -> Html Msg -> Html Msg
+renderExpr expr child =
+    div [ class "exprContainer" ]
+        [ case expr of
+            Nothing ->
+                div [ class "expr-empty" ]
+                    [ child ]
+            Just expr ->
+                div [ class "expr" ]
+                    [ text <| Cnf.prettyPrint expr ]
+        ]
 

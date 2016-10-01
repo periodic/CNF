@@ -1,13 +1,13 @@
 module Cnf exposing (..)
 
-import Set exposing (Set)
-import Set as S
-
 import Dict exposing (Dict)
 import Dict as D
-
 import List as L
 import Maybe as M
+import Set exposing (Set)
+import Set as S
+import String as Str
+
 
 import Random exposing (..)
 
@@ -84,7 +84,7 @@ prettyPrint expr =
         Negation a ->
              "¬" ++ withParens a
         Symbol c ->
-             toString c
+             Str.fromChar c
 
 withParens : Expr -> String
 withParens expr =
