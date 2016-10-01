@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Cnf</title>
+        <script type="text/javascript" src="cnf.js"></script>
+        <style>
+body {
+    color: #111;
+    font-family: sans-serif;
+}
+
+.container {
+    width: 600px;
+    margin: 20px auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 1em 0;
+    padding: 1em 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.exprSizeInput label {
+    margin-right: 1em;
+}
+
+.exprContainer {
+    display: flex;
+    height: 4em;
+    align-items: center;
+    justify-content: center;
+}
+
+.expr {
+    text-align: center;
+    margin: 1em;
+}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>CNF Transformation Practice!</h1>
+            <div id="App"></div>
+        </div>
+    </body>
+    <script type="text/javascript">
+var node = document.getElementById('App');
+var app = Elm.Main.embed(node);
+    </script>
+</html>
