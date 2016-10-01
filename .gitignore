@@ -1,6 +1,10 @@
-/bower_components/
-/node_modules/
-/.pulp-cache/
-/output/
-/.psci*
-/src/.webpack.js
+bower_components/
+node_modules/
+.pulp-cache/
+output/
+dist/
+.psci*
+src/.webpack.js
+*.hi
+*.o
+Main

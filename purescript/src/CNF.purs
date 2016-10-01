@@ -1,68 +1,69 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module CNF where
 
-import Data.Map (Map)
-import qualified Data.Map as M
-import Data.Set (Set)
-import qualified Data.Set as S
+import Prelude
+import Data.Map as M
+import Data.Set as S
+import Data.Array as A
+import Data.Maybe
+import Data.String as Str
 import Test.QuickCheck
+import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Gen
-import Control.Applicative
-import Control.Monad.Reader
+import Control.Monad.Reader (Reader, ask)
 
 data Expr = Conjunction Expr Expr
           | Disjunction Expr Expr
           | Implication Expr Expr
           | Negation Expr
           | Symbol Char
-          deriving (Eq, Show)
 
-prettyPrint (Conjunction a@(Conjunction _ _) b@(Conjunction _ _)) = prettyPrint a ++ " ∧ " ++ prettyPrint b
-prettyPrint (Conjunction a@(Conjunction _ _) b) = prettyPrint a ++ " ∧ " ++ withParens b
-prettyPrint (Conjunction a b@(Conjunction _ _)) = withParens a ++ " ∧ " ++ prettyPrint b
-prettyPrint (Conjunction a b) = withParens a ++ " ∧ " ++ withParens b
-prettyPrint (Disjunction a@(Disjunction _ _) b@(Disjunction _ _)) = prettyPrint a ++ " ∨ " ++ prettyPrint b
-prettyPrint (Disjunction a@(Disjunction _ _) b) = prettyPrint a ++ " ∨ " ++ withParens b
-prettyPrint (Disjunction a b@(Disjunction _ _)) = withParens a ++ " ∨ " ++ prettyPrint b
-prettyPrint (Disjunction a b) = withParens a ++ " ∨ " ++ withParens b
-prettyPrint (Implication a b) = withParens a ++ " ⇒ " ++ withParens b
-prettyPrint (Negation a) = "¬" ++ withParens a
-prettyPrint (Symbol c) = [c]
+prettyPrint :: Expr -> String
+prettyPrint (Conjunction a@(Conjunction _ _) b@(Conjunction _ _)) = prettyPrint a <> " ∧ " <> prettyPrint b
+prettyPrint (Conjunction a@(Conjunction _ _) b) = prettyPrint a <> " ∧ " <> withParens b
+prettyPrint (Conjunction a b@(Conjunction _ _)) = withParens a <> " ∧ " <> prettyPrint b
+prettyPrint (Conjunction a b) = withParens a <> " ∧ " <> withParens b
+prettyPrint (Disjunction a@(Disjunction _ _) b@(Disjunction _ _)) = prettyPrint a <> " ∨ " <> prettyPrint b
+prettyPrint (Disjunction a@(Disjunction _ _) b) = prettyPrint a <> " ∨ " <> withParens b
+prettyPrint (Disjunction a b@(Disjunction _ _)) = withParens a <> " ∨ " <> prettyPrint b
+prettyPrint (Disjunction a b) = withParens a <> " ∨ " <> withParens b
+prettyPrint (Implication a b) = withParens a <> " ⇒ " <> withParens b
+prettyPrint (Negation a) = "¬" <> withParens a
+prettyPrint (Symbol c) = Str.singleton c
 
+withParens :: Expr -> String
 withParens s@(Symbol _) = prettyPrint s
 withParens s@(Negation _) = prettyPrint s
-withParens expr = "(" ++ prettyPrint expr ++ ")"
+withParens expr = "(" <> prettyPrint expr <> ")"
 
-
-instance Arbitrary Expr where
+instance arbitraryExpr :: Arbitrary Expr where
     arbitrary = sized sizedExpr
 
 sizedExpr :: Int -> Gen Expr
 sizedExpr = expr
     where
-        symb = Symbol <$> elements "ABC"
+        symb = Symbol <$> elements 'A' ['B', 'C']
         neg n = Negation <$> expr (n - 1)
         conj n = Conjunction <$> expr (n `div` 2) <*> expr (n `div` 2)
         disj n = Disjunction <$> expr (n `div` 2) <*> expr (n `div` 2)
         impl n = Implication <$> expr (n `div` 2) <*> expr (n `div` 2)
         expr 0 = symb
-        expr n = oneof [neg n, conj n, disj n, impl n]
+        expr n = oneOf (neg n) [conj n, disj n, impl n]
 
-freeVars :: Expr -> Set Char
+freeVars :: Expr -> S.Set Char
 freeVars (Conjunction a b) = S.union (freeVars a) (freeVars b)
 freeVars (Disjunction a b) = S.union (freeVars a) (freeVars b)
 freeVars (Implication a b) = S.union (freeVars a) (freeVars b)
 freeVars (Negation a) = freeVars a
 freeVars (Symbol c) = S.singleton c
 
-genValues :: Set Char -> Gen (Map Char Bool)
+genValues :: S.Set Char -> Gen (M.Map Char Boolean)
 genValues vars = do
     values <- S.size vars `vectorOf` arbitrary
-    return . M.fromList $ zip (S.toList vars) values
+    pure <<< M.fromFoldable $ A.zip (S.toUnfoldable vars) values
 
-data Formula = Formula (Map Char Bool) Expr deriving (Show)
+data Formula = Formula (M.Map Char Boolean) Expr
 
-instance Arbitrary Formula where
+instance arbitraryFormula :: Arbitrary Formula where
     arbitrary = sized sizedFormula
 
 sizedFormula :: Int -> Gen Formula
@@ -75,21 +76,19 @@ sizedFormula n = do
 {-- Evaluation
  -----------------------------------------}
 
-newtype Eval a = Eval {
-    eval :: Map Char Bool -> a
-    } deriving (Monad, Applicative, Functor, MonadReader (Map Char Bool))
+type Eval a = Reader (M.Map Char Boolean) a
 
-lookupSymbol :: Char -> Eval Bool
-lookupSymbol c = M.findWithDefault False c <$> ask
+lookupSymbol :: Char -> Eval Boolean
+lookupSymbol c = fromMaybe false <<< M.lookup c <$> ask
 
-evaluate :: Expr -> Eval Bool
+evaluate :: Expr -> Eval Boolean
 evaluate (Conjunction a b) = (&&) <$> evaluate a <*> evaluate b
 evaluate (Disjunction a b) = (||) <$> evaluate a <*> evaluate b
 evaluate (Implication a b) = do
     pred <- evaluate a
     if pred
         then evaluate b
-        else return True
+        else pure true
 evaluate (Negation e) = (not) <$> evaluate e
 evaluate (Symbol c) = lookupSymbol c
 
@@ -127,43 +126,20 @@ distribute (Implication a b) = (distribute a) `Implication` (distribute b)
 distribute (Negation e) = Negation (distribute e)
 distribute (Symbol c) = Symbol c
 
-toCnf = distribute . moveNegation . removeImplication
+toCnf = distribute <<< moveNegation <<< removeImplication
 
-isCnf :: Expr -> Bool
+isCnf :: Expr -> Boolean
 isCnf = conj
     where
-        conj (Implication _ _) = False
+        conj (Implication _ _) = false
         conj (Conjunction a b) = conj a && conj b
         conj e = disj e
-        disj (Implication _ _) = False
-        disj (Conjunction _ _) = False
+        disj (Implication _ _) = false
+        disj (Conjunction _ _) = false
         disj (Disjunction a b) = disj a && disj b
         disj e = neg e
-        neg (Implication _ _) = False
-        neg (Conjunction _ _) = False
-        neg (Disjunction _ _) = False
+        neg (Implication _ _) = false
+        neg (Conjunction _ _) = false
+        neg (Disjunction _ _) = false
         neg (Negation e) = neg e
-        neg e = True
-
-prop_IsCnf :: Expr -> Bool
-prop_IsCnf expr = isCnf $ toCnf expr
-
-prop_SameValue :: Formula -> Bool
-prop_SameValue (Formula values expr) =
-    let val1 = eval (evaluate expr) values
-        val2 = eval (evaluate (toCnf expr)) values
-    in val1 == val2
-
-main :: IO ()
-main = do
-    Formula values expr <- generate (sizedFormula 4)
-    printValues values
-    printExpr expr
-    _ <- getLine
-    printExpr $ toCnf expr
-    _ <- getLine
-    main
-    where
-        printValues = flip forM_ (\(k, v) -> putStrLn $ k : " = " ++ show v) . M.toList
-        printExpr = putStrLn . prettyPrint
-
+        neg e = true
