@@ -9276,18 +9276,136 @@ var _user$project$Cnf$distribute = function (expr) {
 		}
 	}
 };
-var _user$project$Cnf$Formula = F2(
+var _user$project$Cnf$removeValues = function (expr) {
+	var _p28 = expr;
+	switch (_p28.ctor) {
+		case 'ConjValue':
+			return A2(
+				_user$project$Cnf$Conjunction,
+				_user$project$Cnf$removeValues(_p28._1),
+				_user$project$Cnf$removeValues(_p28._2));
+		case 'DisjValue':
+			return A2(
+				_user$project$Cnf$Disjunction,
+				_user$project$Cnf$removeValues(_p28._1),
+				_user$project$Cnf$removeValues(_p28._2));
+		case 'ImplValue':
+			return A2(
+				_user$project$Cnf$Implication,
+				_user$project$Cnf$removeValues(_p28._1),
+				_user$project$Cnf$removeValues(_p28._2));
+		case 'NegValue':
+			return _user$project$Cnf$Negation(
+				_user$project$Cnf$removeValues(_p28._1));
+		default:
+			return _user$project$Cnf$Symbol(_p28._1);
+	}
+};
+var _user$project$Cnf$SymbValue = F2(
 	function (a, b) {
-		return {ctor: 'Formula', _0: a, _1: b};
+		return {ctor: 'SymbValue', _0: a, _1: b};
+	});
+var _user$project$Cnf$NegValue = F2(
+	function (a, b) {
+		return {ctor: 'NegValue', _0: a, _1: b};
+	});
+var _user$project$Cnf$ImplValue = F3(
+	function (a, b, c) {
+		return {ctor: 'ImplValue', _0: a, _1: b, _2: c};
+	});
+var _user$project$Cnf$DisjValue = F3(
+	function (a, b, c) {
+		return {ctor: 'DisjValue', _0: a, _1: b, _2: c};
+	});
+var _user$project$Cnf$ConjValue = F3(
+	function (a, b, c) {
+		return {ctor: 'ConjValue', _0: a, _1: b, _2: c};
+	});
+var _user$project$Cnf$withValues$ = F2(
+	function (values, expr) {
+		var _p29 = expr;
+		switch (_p29.ctor) {
+			case 'Conjunction':
+				var _p30 = A2(_user$project$Cnf$withValues$, values, _p29._0);
+				var rValue = _p30._0;
+				var rExpr = _p30._1;
+				var _p31 = A2(_user$project$Cnf$withValues$, values, _p29._1);
+				var lValue = _p31._0;
+				var lExpr = _p31._1;
+				var value = lValue && rValue;
+				return {
+					ctor: '_Tuple2',
+					_0: value,
+					_1: A3(_user$project$Cnf$ConjValue, value, lExpr, rExpr)
+				};
+			case 'Disjunction':
+				var _p32 = A2(_user$project$Cnf$withValues$, values, _p29._0);
+				var rValue = _p32._0;
+				var rExpr = _p32._1;
+				var _p33 = A2(_user$project$Cnf$withValues$, values, _p29._1);
+				var lValue = _p33._0;
+				var lExpr = _p33._1;
+				var value = lValue || rValue;
+				return {
+					ctor: '_Tuple2',
+					_0: value,
+					_1: A3(_user$project$Cnf$DisjValue, value, lExpr, rExpr)
+				};
+			case 'Implication':
+				var _p34 = A2(_user$project$Cnf$withValues$, values, _p29._0);
+				var rValue = _p34._0;
+				var rExpr = _p34._1;
+				var _p35 = A2(_user$project$Cnf$withValues$, values, _p29._1);
+				var lValue = _p35._0;
+				var lExpr = _p35._1;
+				var value = _elm_lang$core$Basics$not(lValue) || rValue;
+				return {
+					ctor: '_Tuple2',
+					_0: value,
+					_1: A3(_user$project$Cnf$ImplValue, value, lExpr, rExpr)
+				};
+			case 'Negation':
+				var _p36 = A2(_user$project$Cnf$withValues$, values, _p29._0);
+				var eValue = _p36._0;
+				var eExpr = _p36._1;
+				var value = _elm_lang$core$Basics$not(eValue);
+				return {
+					ctor: '_Tuple2',
+					_0: value,
+					_1: A2(_user$project$Cnf$NegValue, value, eExpr)
+				};
+			default:
+				var _p37 = _p29._0;
+				var value = A2(
+					_elm_lang$core$Maybe$withDefault,
+					false,
+					A2(_elm_lang$core$Dict$get, _p37, values));
+				return {
+					ctor: '_Tuple2',
+					_0: value,
+					_1: A2(_user$project$Cnf$SymbValue, value, _p37)
+				};
+		}
+	});
+var _user$project$Cnf$withValues = F2(
+	function (values, expr) {
+		return _elm_lang$core$Basics$snd(
+			A2(_user$project$Cnf$withValues$, values, expr));
 	});
 
-var _user$project$Program$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {seed: a, exprSize: b, wExpr: c, iExpr: d, nExpr: e, dExpr: f};
+var _user$project$Program$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {seed: a, exprSize: b, wExpr: c, iExpr: d, nExpr: e, dExpr: f, hover: g, values: h};
 	});
+var _user$project$Program$NewHover = function (a) {
+	return {ctor: 'NewHover', _0: a};
+};
 var _user$project$Program$DoNothing = {ctor: 'DoNothing'};
+var _user$project$Program$UpdateValue = F2(
+	function (a, b) {
+		return {ctor: 'UpdateValue', _0: a, _1: b};
+	});
 var _user$project$Program$NewFormula = {ctor: 'NewFormula'};
-var _user$project$Program$ShowValue = {ctor: 'ShowValue'};
 var _user$project$Program$ShowDisjunctionStep = {ctor: 'ShowDisjunctionStep'};
 var _user$project$Program$ShowNegationStep = {ctor: 'ShowNegationStep'};
 var _user$project$Program$ShowImplicationStep = {ctor: 'ShowImplicationStep'};
@@ -9297,9 +9415,357 @@ var _user$project$Program$ChangeSize = function (a) {
 var _user$project$Program$Initialize = function (a) {
 	return {ctor: 'Initialize', _0: a};
 };
+var _user$project$Program$NoHover = {ctor: 'NoHover'};
+var _user$project$Program$HoverDExpr = function (a) {
+	return {ctor: 'HoverDExpr', _0: a};
+};
+var _user$project$Program$HoverNExpr = function (a) {
+	return {ctor: 'HoverNExpr', _0: a};
+};
+var _user$project$Program$HoverIExpr = function (a) {
+	return {ctor: 'HoverIExpr', _0: a};
+};
+var _user$project$Program$HoverWExpr = function (a) {
+	return {ctor: 'HoverWExpr', _0: a};
+};
+var _user$project$Program$Selected = {ctor: 'Selected'};
+var _user$project$Program$Straight = function (a) {
+	return {ctor: 'Straight', _0: a};
+};
+var _user$project$Program$Right = function (a) {
+	return {ctor: 'Right', _0: a};
+};
+var _user$project$Program$Left = function (a) {
+	return {ctor: 'Left', _0: a};
+};
 
+var _user$project$View$onHover = function (path) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'mouseover',
+		{stopPropagation: true, preventDefault: true},
+		_elm_lang$core$Json_Decode$succeed(
+			_user$project$Program$NewHover(path)));
+};
+var _user$project$View$tooltip = function (v) {
+	return A2(
+		_elm_lang$html$Html$span,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('tooltip')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				_elm_lang$core$Basics$toString(v))
+			]));
+};
 var _user$project$View$renderExpr = F2(
-	function (expr, child) {
+	function (path, expr) {
+		var _p0 = expr;
+		switch (_p0.ctor) {
+			case 'ConjValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('expr complex conjunction'),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_user$project$View$renderExpr,
+							function (_p1) {
+								return path(
+									_user$project$Program$Left(_p1));
+							},
+							_p0._1),
+							_elm_lang$html$Html$text('∧'),
+							A2(
+							_user$project$View$renderExpr,
+							function (_p2) {
+								return path(
+									_user$project$Program$Right(_p2));
+							},
+							_p0._2),
+							_user$project$View$tooltip(_p0._0)
+						]));
+			case 'DisjValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('expr complex disjunction'),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_user$project$View$renderExpr,
+							function (_p3) {
+								return path(
+									_user$project$Program$Left(_p3));
+							},
+							_p0._1),
+							_elm_lang$html$Html$text('∨'),
+							A2(
+							_user$project$View$renderExpr,
+							function (_p4) {
+								return path(
+									_user$project$Program$Right(_p4));
+							},
+							_p0._2),
+							_user$project$View$tooltip(_p0._0)
+						]));
+			case 'ImplValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('expr complex implication'),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_user$project$View$renderExpr,
+							function (_p5) {
+								return path(
+									_user$project$Program$Left(_p5));
+							},
+							_p0._1),
+							_elm_lang$html$Html$text('⇒'),
+							A2(
+							_user$project$View$renderExpr,
+							function (_p6) {
+								return path(
+									_user$project$Program$Right(_p6));
+							},
+							_p0._2),
+							_user$project$View$tooltip(_p0._0)
+						]));
+			case 'NegValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('expr negation'),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('¬'),
+							A2(
+							_user$project$View$renderExpr,
+							function (_p7) {
+								return path(
+									_user$project$Program$Straight(_p7));
+							},
+							_p0._1),
+							_user$project$View$tooltip(_p0._0)
+						]));
+			default:
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('expr symbol'),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(
+							_elm_lang$core$String$fromChar(_p0._1)),
+							_user$project$View$tooltip(_p0._0)
+						]));
+		}
+	});
+var _user$project$View$goStraight = F3(
+	function (path, hoverPath, expr) {
+		var _p8 = hoverPath;
+		if (_p8.ctor === 'Straight') {
+			return A3(
+				_user$project$View$renderWithHover,
+				function (_p9) {
+					return path(
+						_user$project$Program$Straight(_p9));
+				},
+				_p8._0,
+				expr);
+		} else {
+			return A2(
+				_user$project$View$renderExpr,
+				function (_p10) {
+					return path(
+						_user$project$Program$Straight(_p10));
+				},
+				expr);
+		}
+	});
+var _user$project$View$renderWithHover = F3(
+	function (path, hoverPath, expr) {
+		var isHovered = function () {
+			var _p11 = hoverPath;
+			if (_p11.ctor === 'Selected') {
+				return true;
+			} else {
+				return false;
+			}
+		}();
+		var _p12 = expr;
+		switch (_p12.ctor) {
+			case 'ConjValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'expr complex conjunction',
+								isHovered ? ' hovered' : '')),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A3(_user$project$View$goLeft, path, hoverPath, _p12._1),
+							_elm_lang$html$Html$text('∧'),
+							A3(_user$project$View$goRight, path, hoverPath, _p12._2),
+							_user$project$View$tooltip(_p12._0)
+						]));
+			case 'DisjValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'expr complex disjunction',
+								isHovered ? ' hovered' : '')),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A3(_user$project$View$goLeft, path, hoverPath, _p12._1),
+							_elm_lang$html$Html$text('∨'),
+							A3(_user$project$View$goRight, path, hoverPath, _p12._2),
+							_user$project$View$tooltip(_p12._0)
+						]));
+			case 'ImplValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'expr complex implication',
+								isHovered ? ' hovered' : '')),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A3(_user$project$View$goLeft, path, hoverPath, _p12._1),
+							_elm_lang$html$Html$text('⇒'),
+							A3(_user$project$View$goRight, path, hoverPath, _p12._2),
+							_user$project$View$tooltip(_p12._0)
+						]));
+			case 'NegValue':
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'expr negation',
+								isHovered ? ' hovered' : '')),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('¬'),
+							A3(_user$project$View$goStraight, path, hoverPath, _p12._1),
+							_user$project$View$tooltip(_p12._0)
+						]));
+			default:
+				return A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'expr symbol',
+								isHovered ? ' hovered' : '')),
+							_user$project$View$onHover(
+							path(_user$project$Program$Selected))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(
+							_elm_lang$core$String$fromChar(_p12._1)),
+							_user$project$View$tooltip(_p12._0)
+						]));
+		}
+	});
+var _user$project$View$goLeft = F3(
+	function (path, hoverPath, expr) {
+		var _p13 = hoverPath;
+		if (_p13.ctor === 'Left') {
+			return A3(
+				_user$project$View$renderWithHover,
+				function (_p14) {
+					return path(
+						_user$project$Program$Left(_p14));
+				},
+				_p13._0,
+				expr);
+		} else {
+			return A2(
+				_user$project$View$renderExpr,
+				function (_p15) {
+					return path(
+						_user$project$Program$Left(_p15));
+				},
+				expr);
+		}
+	});
+var _user$project$View$goRight = F3(
+	function (path, hoverPath, expr) {
+		var _p16 = hoverPath;
+		if (_p16.ctor === 'Right') {
+			return A3(
+				_user$project$View$renderWithHover,
+				function (_p17) {
+					return path(
+						_user$project$Program$Right(_p17));
+				},
+				_p16._0,
+				expr);
+		} else {
+			return A2(
+				_user$project$View$renderExpr,
+				function (_p18) {
+					return path(
+						_user$project$Program$Right(_p18));
+				},
+				expr);
+		}
+	});
+var _user$project$View$renderMaybeExpr = F3(
+	function (maybeExpr, renderer, child) {
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -9309,8 +9775,8 @@ var _user$project$View$renderExpr = F2(
 			_elm_lang$core$Native_List.fromArray(
 				[
 					function () {
-					var _p0 = expr;
-					if (_p0.ctor === 'Nothing') {
+					var _p19 = maybeExpr;
+					if (_p19.ctor === 'Nothing') {
 						return A2(
 							_elm_lang$html$Html$div,
 							_elm_lang$core$Native_List.fromArray(
@@ -9324,12 +9790,11 @@ var _user$project$View$renderExpr = F2(
 							_elm_lang$html$Html$div,
 							_elm_lang$core$Native_List.fromArray(
 								[
-									_elm_lang$html$Html_Attributes$class('expr')
+									_elm_lang$html$Html_Attributes$class('')
 								]),
 							_elm_lang$core$Native_List.fromArray(
 								[
-									_elm_lang$html$Html$text(
-									_user$project$Cnf$prettyPrint(_p0._0))
+									renderer(_p19._0)
 								]));
 					}
 				}()
@@ -9347,74 +9812,126 @@ var _user$project$View$showButton = function (msg) {
 		_elm_lang$core$Native_List.fromArray(
 			[]));
 };
-var _user$project$View$renderDExpr = function (maybeExpr) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$class('dExpr')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('Distribute disjunctions:'),
-				A2(
-				_user$project$View$renderExpr,
-				maybeExpr,
-				_user$project$View$showButton(_user$project$Program$ShowDisjunctionStep))
-			]));
-};
-var _user$project$View$renderNExpr = function (maybeExpr) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$class('nExpr')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('Move negations:'),
-				A2(
-				_user$project$View$renderExpr,
-				maybeExpr,
-				_user$project$View$showButton(_user$project$Program$ShowNegationStep))
-			]));
-};
-var _user$project$View$renderIExpr = function (maybeExpr) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$class('iExpr')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('Remove implications:'),
-				A2(
-				_user$project$View$renderExpr,
-				maybeExpr,
-				_user$project$View$showButton(_user$project$Program$ShowImplicationStep))
-			]));
-};
-var _user$project$View$renderWExpr = function (maybeExpr) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$class('wExpr')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('Expression:'),
-				A2(
-				_user$project$View$renderExpr,
-				maybeExpr,
-				_elm_lang$html$Html$text('Loading...'))
-			]));
-};
+var _user$project$View$renderDExpr = F2(
+	function (maybeExpr, hover) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('dExpr')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Distribute disjunctions:'),
+					function () {
+					var _p20 = hover;
+					if (_p20.ctor === 'HoverDExpr') {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							A2(_user$project$View$renderWithHover, _user$project$Program$HoverDExpr, _p20._0),
+							_user$project$View$showButton(_user$project$Program$ShowDisjunctionStep));
+					} else {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							_user$project$View$renderExpr(_user$project$Program$HoverDExpr),
+							_user$project$View$showButton(_user$project$Program$ShowDisjunctionStep));
+					}
+				}()
+				]));
+	});
+var _user$project$View$renderNExpr = F2(
+	function (maybeExpr, hover) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('nExpr')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Move negations:'),
+					function () {
+					var _p21 = hover;
+					if (_p21.ctor === 'HoverNExpr') {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							A2(_user$project$View$renderWithHover, _user$project$Program$HoverNExpr, _p21._0),
+							_user$project$View$showButton(_user$project$Program$ShowNegationStep));
+					} else {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							_user$project$View$renderExpr(_user$project$Program$HoverNExpr),
+							_user$project$View$showButton(_user$project$Program$ShowNegationStep));
+					}
+				}()
+				]));
+	});
+var _user$project$View$renderIExpr = F2(
+	function (maybeExpr, hover) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('iExpr')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Remove implications:'),
+					function () {
+					var _p22 = hover;
+					if (_p22.ctor === 'HoverIExpr') {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							A2(_user$project$View$renderWithHover, _user$project$Program$HoverIExpr, _p22._0),
+							_user$project$View$showButton(_user$project$Program$ShowImplicationStep));
+					} else {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							_user$project$View$renderExpr(_user$project$Program$HoverIExpr),
+							_user$project$View$showButton(_user$project$Program$ShowImplicationStep));
+					}
+				}()
+				]));
+	});
+var _user$project$View$renderWExpr = F2(
+	function (maybeExpr, hover) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('wExpr')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Expression:'),
+					function () {
+					var _p23 = hover;
+					if (_p23.ctor === 'HoverWExpr') {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							A2(_user$project$View$renderWithHover, _user$project$Program$HoverWExpr, _p23._0),
+							_elm_lang$html$Html$text('Loading...'));
+					} else {
+						return A3(
+							_user$project$View$renderMaybeExpr,
+							maybeExpr,
+							_user$project$View$renderExpr(_user$project$Program$HoverWExpr),
+							_elm_lang$html$Html$text('Loading...'));
+					}
+				}()
+				]));
+	});
 var _user$project$View$parseSize = function (str) {
-	var _p1 = _elm_lang$core$String$toInt(str);
-	if (_p1.ctor === 'Ok') {
-		return _user$project$Program$ChangeSize(_p1._0);
+	var _p24 = _elm_lang$core$String$toInt(str);
+	if (_p24.ctor === 'Ok') {
+		return _user$project$Program$ChangeSize(_p24._0);
 	} else {
 		return _user$project$Program$DoNothing;
 	}
@@ -9479,19 +9996,117 @@ var _user$project$View$renderHeader = function (exprSize) {
 					]))
 			]));
 };
-var _user$project$View$renderForm = function (_p2) {
-	var _p3 = _p2;
+var _user$project$View$renderValue = function (_p25) {
+	var _p26 = _p25;
+	var _p28 = _p26._1;
+	var _p27 = _p26._0;
+	var $false = _elm_lang$core$Basics$toString(false);
+	var $true = _elm_lang$core$Basics$toString(true);
+	var callback = function (str) {
+		return _elm_lang$core$Native_Utils.eq(str, $true) ? A2(_user$project$Program$UpdateValue, _p27, true) : A2(_user$project$Program$UpdateValue, _p27, false);
+	};
+	var c = _elm_lang$core$String$fromChar(_p27);
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('valueForm-value')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$label,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$for(c)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(c)
+					])),
+				A2(
+				_elm_lang$html$Html$select,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onInput(callback)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$option,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$selected(_p28),
+								_elm_lang$html$Html_Attributes$value($true)
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text($true)
+							])),
+						A2(
+						_elm_lang$html$Html$option,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$selected(
+								_elm_lang$core$Basics$not(_p28)),
+								_elm_lang$html$Html_Attributes$value($false)
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text($false)
+							]))
+					]))
+			]));
+};
+var _user$project$View$renderValues = function (values) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('valueForm')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text('Values:'),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('valueForm-values')
+					]),
+				A2(
+					_elm_lang$core$List$map,
+					_user$project$View$renderValue,
+					_elm_lang$core$Dict$toList(values)))
+			]));
+};
+var _user$project$View$renderForm = function (_p29) {
+	var _p30 = _p29;
+	var _p31 = _p30.hover;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
 			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_user$project$View$renderHeader(_p3.exprSize),
-				_user$project$View$renderWExpr(_p3.wExpr),
-				_user$project$View$renderIExpr(_p3.iExpr),
-				_user$project$View$renderNExpr(_p3.nExpr),
-				_user$project$View$renderDExpr(_p3.dExpr)
+				_user$project$View$renderHeader(_p30.exprSize),
+				_user$project$View$renderValues(_p30.values),
+				A2(
+				_user$project$View$renderWExpr,
+				A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$snd, _p30.wExpr),
+				_p31),
+				A2(
+				_user$project$View$renderIExpr,
+				A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$snd, _p30.iExpr),
+				_p31),
+				A2(
+				_user$project$View$renderNExpr,
+				A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$snd, _p30.nExpr),
+				_p31),
+				A2(
+				_user$project$View$renderDExpr,
+				A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$snd, _p30.dExpr),
+				_p31)
 			]));
 };
 var _user$project$View$initializing = A2(
@@ -9515,13 +10130,15 @@ var _user$project$Main$update = F2(
 				var _p1 = A2(_user$project$Cnf$generateExpr, model.exprSize, seed);
 				var expr = _p1._0;
 				var seed$ = _p1._1;
+				var expr$ = A2(_user$project$Cnf$withValues, model.values, expr);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							seed: _elm_lang$core$Maybe$Just(seed$),
-							wExpr: _elm_lang$core$Maybe$Just(expr)
+							wExpr: _elm_lang$core$Maybe$Just(
+								{ctor: '_Tuple2', _0: expr, _1: expr$})
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -9541,13 +10158,15 @@ var _user$project$Main$update = F2(
 					var _p3 = A2(_user$project$Cnf$generateExpr, model.exprSize, _p2._0);
 					var expr = _p3._0;
 					var seed$ = _p3._1;
+					var exprWithValues = A2(_user$project$Cnf$withValues, model.values, expr);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
 								seed: _elm_lang$core$Maybe$Just(seed$),
-								wExpr: _elm_lang$core$Maybe$Just(expr),
+								wExpr: _elm_lang$core$Maybe$Just(
+									{ctor: '_Tuple2', _0: expr, _1: exprWithValues}),
 								iExpr: _elm_lang$core$Maybe$Nothing,
 								nExpr: _elm_lang$core$Maybe$Nothing,
 								dExpr: _elm_lang$core$Maybe$Nothing
@@ -9560,13 +10179,15 @@ var _user$project$Main$update = F2(
 				if (_p4.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
+					var expr$ = _user$project$Cnf$transformImplications(_p4._0._0);
+					var exprWithValues$ = A2(_user$project$Cnf$withValues, model.values, expr$);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
 								iExpr: _elm_lang$core$Maybe$Just(
-									_user$project$Cnf$transformImplications(_p4._0))
+									{ctor: '_Tuple2', _0: expr$, _1: exprWithValues$})
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -9576,13 +10197,15 @@ var _user$project$Main$update = F2(
 				if (_p5.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
+					var expr$ = _user$project$Cnf$moveNegation(_p5._0._0);
+					var exprWithValues$ = A2(_user$project$Cnf$withValues, model.values, expr$);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
 								nExpr: _elm_lang$core$Maybe$Just(
-									_user$project$Cnf$moveNegation(_p5._0))
+									{ctor: '_Tuple2', _0: expr$, _1: exprWithValues$})
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -9592,30 +10215,124 @@ var _user$project$Main$update = F2(
 				if (_p6.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
+					var expr$ = _user$project$Cnf$distribute(_p6._0._0);
+					var exprWithValues$ = A2(_user$project$Cnf$withValues, model.values, expr$);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
 								dExpr: _elm_lang$core$Maybe$Just(
-									_user$project$Cnf$distribute(_p6._0))
+									{ctor: '_Tuple2', _0: expr$, _1: exprWithValues$})
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
+			case 'NewHover':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{hover: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'UpdateValue':
+				var values$ = A3(_elm_lang$core$Dict$insert, _p0._0, _p0._1, model.values);
+				var wExpr$ = A2(
+					_elm_lang$core$Maybe$map,
+					function (_p7) {
+						var _p8 = _p7;
+						var _p9 = _p8._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _p9,
+							_1: A2(_user$project$Cnf$withValues, values$, _p9)
+						};
+					},
+					model.wExpr);
+				var iExpr$ = A2(
+					_elm_lang$core$Maybe$map,
+					function (_p10) {
+						var _p11 = _p10;
+						var _p12 = _p11._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _p12,
+							_1: A2(_user$project$Cnf$withValues, values$, _p12)
+						};
+					},
+					model.iExpr);
+				var nExpr$ = A2(
+					_elm_lang$core$Maybe$map,
+					function (_p13) {
+						var _p14 = _p13;
+						var _p15 = _p14._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _p15,
+							_1: A2(_user$project$Cnf$withValues, values$, _p15)
+						};
+					},
+					model.nExpr);
+				var dExpr$ = A2(
+					_elm_lang$core$Maybe$map,
+					function (_p16) {
+						var _p17 = _p16;
+						var _p18 = _p17._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _p18,
+							_1: A2(_user$project$Cnf$withValues, values$, _p18)
+						};
+					},
+					model.dExpr);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{values: values$, wExpr: wExpr$, iExpr: iExpr$, nExpr: nExpr$, dExpr: dExpr$}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			default:
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _user$project$Main$view = function (model) {
-	var _p7 = model.seed;
-	if (_p7.ctor === 'Nothing') {
+	var _p19 = model.seed;
+	if (_p19.ctor === 'Nothing') {
 		return _user$project$View$initializing;
 	} else {
 		return _user$project$View$renderForm(model);
 	}
 };
-var _user$project$Main$model = {seed: _elm_lang$core$Maybe$Nothing, exprSize: 4, wExpr: _elm_lang$core$Maybe$Nothing, iExpr: _elm_lang$core$Maybe$Nothing, nExpr: _elm_lang$core$Maybe$Nothing, dExpr: _elm_lang$core$Maybe$Nothing};
+var _user$project$Main$model = {
+	seed: _elm_lang$core$Maybe$Nothing,
+	exprSize: 4,
+	wExpr: _elm_lang$core$Maybe$Nothing,
+	iExpr: _elm_lang$core$Maybe$Nothing,
+	nExpr: _elm_lang$core$Maybe$Nothing,
+	dExpr: _elm_lang$core$Maybe$Nothing,
+	hover: _user$project$Program$NoHover,
+	values: _elm_lang$core$Dict$fromList(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				{
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.chr('A'),
+				_1: false
+			},
+				{
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.chr('B'),
+				_1: false
+			},
+				{
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.chr('C'),
+				_1: false
+			}
+			]))
+};
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$program(
 		{

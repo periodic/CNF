@@ -11,11 +11,19 @@ import String as Str
 
 import Random exposing (..)
 
-type Expr = Conjunction Expr Expr
-          | Disjunction Expr Expr
-          | Implication Expr Expr
-          | Negation Expr
-          | Symbol Char
+type Expr
+    = Conjunction Expr Expr
+    | Disjunction Expr Expr
+    | Implication Expr Expr
+    | Negation Expr
+    | Symbol Char
+
+type ExprWithValue
+    = ConjValue Bool ExprWithValue ExprWithValue
+    | DisjValue Bool ExprWithValue ExprWithValue
+    | ImplValue Bool ExprWithValue ExprWithValue
+    | NegValue Bool ExprWithValue
+    | SymbValue Bool Char
 
 elem : a -> List a -> Seed -> (a, Seed)
 elem e0 es seed =
@@ -176,6 +184,57 @@ distribute expr =
             Symbol c
 
 type alias ValueDict = Dict Char Bool
-type Formula = Formula ValueDict Expr
 
+withValues : ValueDict -> Expr -> ExprWithValue
+withValues values expr =
+    snd <| withValues' values expr
 
+withValues' : ValueDict -> Expr -> (Bool, ExprWithValue)
+withValues' values expr =
+    case expr of
+        Conjunction r l ->
+            let
+                (lValue, lExpr) = withValues' values l
+                (rValue, rExpr) = withValues' values r
+                value = lValue && rValue
+            in
+               (value, ConjValue value lExpr rExpr)
+        Disjunction r l ->
+            let
+                (lValue, lExpr) = withValues' values l
+                (rValue, rExpr) = withValues' values r
+                value = lValue || rValue
+            in
+               (value, DisjValue value lExpr rExpr)
+        Implication r l ->
+            let
+                (lValue, lExpr) = withValues' values l
+                (rValue, rExpr) = withValues' values r
+                value = not lValue || rValue
+            in
+               (value, ImplValue value lExpr rExpr)
+        Negation e ->
+            let
+                (eValue, eExpr) = withValues' values e
+                value = not eValue
+            in
+               (value, NegValue value eExpr)
+        Symbol c ->
+            let
+                value = Maybe.withDefault False <| Dict.get c values
+            in
+               (value, SymbValue value c)
+
+removeValues : ExprWithValue -> Expr
+removeValues expr =
+    case expr of
+        ConjValue _ r l ->
+            Conjunction (removeValues r) (removeValues l)
+        DisjValue _ r l ->
+            Disjunction (removeValues r) (removeValues l)
+        ImplValue _ r l ->
+            Implication (removeValues r) (removeValues l)
+        NegValue _ e ->
+            Negation (removeValues e)
+        SymbValue _ c ->
+            Symbol c

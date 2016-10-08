@@ -7,10 +7,12 @@ import Cnf
 type alias Model =
     { seed : Maybe Seed
     , exprSize : Int
-    , wExpr : Maybe Cnf.Expr
-    , iExpr : Maybe Cnf.Expr
-    , nExpr : Maybe Cnf.Expr
-    , dExpr : Maybe Cnf.Expr
+    , wExpr : Maybe (Cnf.Expr, Cnf.ExprWithValue)
+    , iExpr : Maybe (Cnf.Expr, Cnf.ExprWithValue)
+    , nExpr : Maybe (Cnf.Expr, Cnf.ExprWithValue)
+    , dExpr : Maybe (Cnf.Expr, Cnf.ExprWithValue)
+    , hover : Hover
+    , values : Cnf.ValueDict
     }
 
 type Msg
@@ -19,7 +21,20 @@ type Msg
     | ShowImplicationStep
     | ShowNegationStep
     | ShowDisjunctionStep
-    | ShowValue
     | NewFormula
+    | UpdateValue Char Bool
     | DoNothing
+    | NewHover Hover
 
+type Hover
+    = HoverWExpr TreePath
+    | HoverIExpr TreePath
+    | HoverNExpr TreePath
+    | HoverDExpr TreePath
+    | NoHover
+
+type TreePath
+    = Left TreePath
+    | Right TreePath
+    | Straight TreePath
+    | Selected

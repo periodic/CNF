@@ -24,6 +24,18 @@ body {
     border-bottom: 1px solid #ccc;
 }
 
+.valueForm-values {
+    margin: 1em;
+}
+
+.valueForm-value {
+    display: flex;
+}
+
+.valueForm label {
+    width: 3em;
+}
+
 .exprSizeInput label {
     margin-right: 1em;
 }
@@ -33,11 +45,52 @@ body {
     height: 4em;
     align-items: center;
     justify-content: center;
+    padding: 1em;
+}
+
+.expr > .complex:before {
+    content: "(";
+}
+
+.expr > .complex:after {
+    content: ")";
+}
+
+.conjunction > .conjunction:before,
+.conjunction > .conjunction:after,
+.disjunction > .disjunction:before,
+.disjunction > .disjunction:after {
+    display: none
 }
 
 .expr {
+    position: relative;
+    border: 2px solid rgba(0,0,0,0);
+}
+
+.expr.hovered {
+    border: 2px solid #39F;
+    border-radius: 3px;
+    background-color: #9CF;
+}
+
+.expr > .tooltip {
+    position: absolute;
+    background-color: #39F;
+    color: white;
     text-align: center;
-    margin: 1em;
+    top: 100%;
+    left: 50%;
+    margin-left: -25px;
+    margin-top: 5px;
+    visibility: hidden;
+    border-radius: 3px;
+    padding: 5px;
+    width: 40px;
+}
+
+.expr.hovered > .tooltip {
+    visibility: visible;
 }
         </style>
     </head>
